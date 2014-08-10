@@ -77,6 +77,10 @@ class UserAction extends Action
         {
             $data["modelcardurl"]="nopic.jpg";
         }
+        else
+        {
+            $data["Ismodelcardshow"]=0;
+        }
         $this->response($data, json, "200");
     }
 
