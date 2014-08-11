@@ -120,7 +120,7 @@ public $check;
         if($this->check==1)
             $condition["check"]=1;
         $condition["ModelType"]=$modeltype;
-        //$condition["IStuijian"]=1;
+        $condition["IStuijian"]=1;
         $data = $M->field("id,headPiC,NickName,height")->where($condition)->limit(5)->select();
 
         $this->response($data,'json');
