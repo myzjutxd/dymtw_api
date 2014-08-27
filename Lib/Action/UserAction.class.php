@@ -143,7 +143,7 @@ class UserAction extends Action
         import('ORG.Net.UploadFile');
         import('ORG.Util.Image');
         $upload = new UploadFile(); // 实例化上传类
-        $upload->maxSize = 3145728; // 设置附件上传大小
+        $upload->maxSize = 30145728; // 设置附件上传大小
         $filename = date("YmdHis") . uniqid();
         //$file_ext=  $this->_post("file_ext");
         $upload->saveRule = $filename;
@@ -152,7 +152,9 @@ class UserAction extends Action
             'jpg',
             'jpeg',
             'png',
-            'bmp'); // 设置附件上传类型
+            'bmp',
+            'flv',
+            'mp4'); // 设置附件上传类型
 
         //        if(in_array( $file_ext,$allowExts)===FALSE)
         //        {

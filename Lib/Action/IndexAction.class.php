@@ -248,7 +248,9 @@ public $check;
          if($this->check==1)
             $condition["check"]=1;
             $user=new Model("userview");
-        $orderby=$sdata["ordername"]." ".$sdata["ordertype"];
+           
+                $orderby=$sdata["ordername"]." ".$sdata["ordertype"].",LoginTime desc";
+           
             $data["user"]=$user->where($condition)->page($page,30)->order("$orderby")->select();
 
             $data["count"]=$user->where($condition)->count();
