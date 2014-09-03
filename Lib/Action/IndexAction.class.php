@@ -150,7 +150,7 @@ public $check;
             $num=10;
         $M = new Model("photoview");
 
-        $data = $M->field("userid,Pic1")->where($condition)->limit($num)->order("Id desc")->group("userid")->select();
+        $data = $M->field("userid,Pic1")->where($condition)->limit($num)->order("UpdateTime desc")->group("userid")->select();
 
         $this->response($data,'json');
 

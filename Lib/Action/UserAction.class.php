@@ -57,7 +57,17 @@ class UserAction extends Action
         $data = $_POST;
         $data["Password"] = substr(md5($data["Password"]), 8, 16);
         $M = new Model("user");
-        $M->add($data);
+        $username=$data["username"];
+        $email=$data["email"];
+        $D = $M->where("username=$username or email=$email")->find();
+        if($D!=null)
+        {
+            $M->add($data);
+            echo 1;
+        }
+        else
+            echo 0;
+
     }
 
     public function user_get()
