@@ -57,16 +57,31 @@ class UserAction extends Action
         $data = $_POST;
         $data["Password"] = substr(md5($data["Password"]), 8, 16);
         $M = new Model("user");
-        $username=$data["username"];
-        $email=$data["email"];
-        $D = $M->where("username=$username or email=$email")->find();
-        if($D!=null)
+        $username["username"]=$data["username"];
+        $email["email"]=$data["email"];
+        $Dusername = $M->where($username)->find();
+        $Demail    = $M->where($email)->find();
+        $rdata["status"]=1;//假定成功
+        $rdata["username"]=1;
+        $rdata["email"]=1;
+        $data["token"]="first";
+        // $rdata[3]=$Dusername;
+        // $rdata[4]=$Demail;
+        if($Dusername!=null)
         {
-            $M->add($data);
-            echo 1;
+            $rdata["status"]=0;   //注册不成功
+            $rdata["username"]=0;
         }
-        else
-            echo 0;
+        if($Demail!=null)
+        {
+            $rdata["status"]=0;
+            $rdata["email"]=0;
+        }
+        if($rdata["status"]==1)
+        {
+            $rdata["id"]=$M->add($data);
+        }
+        $this->response($rdata,json,"200");
 
     }
 
@@ -137,14 +152,38 @@ class UserAction extends Action
     public function photo_post()
     {
         $data = $_POST;
-        $id = $data["id"];
+        $id = $data["Id"];
         $M = new Model("photo");
         //$id=$data["id"];
-        if ($id == null) {
-            $M->add($data);
-        } else {
-            $M->where("Id=$id")->save(data);
+        if($data["action"]!="delete")
+        {
+            unset($data["action"]);
+            if ($id == null) {
+                $M->add($data);
+            } else {
+                $M->where("Id=$id")->save($data);
+            }
         }
+        else
+        {
+            $M->where("Id=$id")->delete();
+        }
+
+    }
+    function thumb($width,$uploadfile)
+    {
+
+       $dstW=$width;//缩略图宽
+       $smallfile=$uploadfile.'_'.$width."x999.jpg";
+
+       $src_image=ImageCreateFromJPEG($uploadfile);
+       $srcW=ImageSX($src_image); //获得图片宽
+       $srcH=ImageSY($src_image); //获得图片高
+       $radio = $dstW/$srcW;
+       $dstH = $srcH*$radio;
+       $dst_image=ImageCreateTrueColor($dstW,$dstH);
+       ImageCopyResized($dst_image,$src_image,0,0,0,0,$dstW,$dstH,$srcW,$srcH);
+       ImageJpeg($dst_image,$smallfile);
 
     }
     public function image_post()
@@ -164,32 +203,22 @@ class UserAction extends Action
             'png',
             'bmp',
             'flv',
-            'mp4'); // 设置附件上传类型
-
-        //        if(in_array( $file_ext,$allowExts)===FALSE)
-        //        {
-        //            $data["status"]=0;
-        //            $data["msg"]="非允许扩展名";
-        //            $this->response($data,'json',404);
-        //            exit;
-        //        }
+            'mp4'); 
         $upload->savePath = './' . $path . '/'; // 设置附件上传目录
-        if ($path == "photo") {
-            $upload->thumb = true;
-            $upload->thumbMaxWidth = "200,250";
-            $upload->thumbPrefix = null;
-            $upload->thumbFile = $filename;
-            $upload->thumbMaxHeight = '999,999';
-            $upload->thumbSuffix = ".jpg_200x999,.jpg_250x999";
-        }
+
         if (!$upload->upload()) { // 上传错误提示错误信息
             $this->error($upload->getErrorMsg());
         } else { // 上传成功 获取上传文件信息
             $info = $upload->getUploadFileInfo();
         }
-        //var_dump($info);
+        
         $data["status"] = 1;
         $data["filename"] = $info[0]["savename"];
+        if($path=="photo")
+        {
+            $uploadfile=$upload->savePath.$data["filename"];
+            $this->thumb(250,$uploadfile);
+        }
         $this->response($data, 'json', 200);
         // 保存表单数据 包括附件数据
         //        $User = M("User"); // 实例化User对象
@@ -202,10 +231,8 @@ class UserAction extends Action
     public function photo_get()
     {
         $M = new Model("photo");
-        if($this->_get("albumid")!=null)
-            $condition["ProClass"] = $this->_get("albumid");
-
-        $condition["userid"] = $this->_get("userid");
+      
+        $condition["Id"] = $this->_get("Id");
         $data = $M->where($condition)->select();
         $this->response($data, 'json');
     }

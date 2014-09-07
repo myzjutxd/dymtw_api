@@ -150,11 +150,34 @@ public $check;
             $num=10;
         $M = new Model("photoview");
 
-        $data = $M->field("userid,Pic1")->where($condition)->limit($num)->order("UpdateTime desc")->group("userid")->select();
+        $data = $M->field("userid,Pic1,Id")->where($condition)->limit(100)->order("UpdateTime desc")->select();
+        $pdata=array();
+        //var_dump($data);
+        for($i=0;$i<100;$i++)
+        {
+            $k=count($pdata)+1;
+           // var_dump($k);
+            if($k>=$num)
+                break;
 
-        $this->response($data,'json');
+            $j=0;
+            for(;$j<$k;$j++)
+            {
+                if($data[$i]["userid"]==$pdata[$j]["userid"])
+                {
+                //    echo "break";
+                        break;
+                }   
+           
+            }
+            if($j>=$k)
+                $pdata[$k+1]=$data[$i];
+        }
+
+        $this->response($pdata,'json');
 
     }
+
 
     public function modeltypelist_get()
 
@@ -266,6 +289,8 @@ public $check;
         $condition["id"] = $this->_get("id");
         $user = new Model("userview");
         $data = $user->where($condition)->find();
+        $user = new Model("user");
+        $user->where($condition)->setInc("viewcount",1);
         $data["NeiUnitPrice"]=round($data["NeiUnitPrice"]*$this->price/10)*10;
         $data["WaiUnitPrice"]=round($data["WaiUnitPrice"]*$this->price/10)*10;
         $data["NeiyiUnitPrice"]=round($data["NeiyiUnitPrice"]*$this->price/10)*10;
