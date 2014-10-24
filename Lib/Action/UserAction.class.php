@@ -128,6 +128,11 @@ class UserAction extends Action
         $data = $_POST;
         $id = $data["id"];
         $M = new Model("user");
+        if($data["password"]!=null)
+        {
+            $data["Password"]=substr(md5($data["password"]), 8, 16);
+            unset($data["password"]);
+        }
         //$id=$data["id"];
         $M->where("id=$id")->save($data);
     }

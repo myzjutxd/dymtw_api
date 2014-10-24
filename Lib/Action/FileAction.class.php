@@ -9,13 +9,13 @@ class FileAction extends Action
     $data=$_POST;
     if($data["token"]==null)
     {
-      $mdata["status"]=0;
+      $mdata["error"]=0;
       $mdata["message"]="token id is null";
       $this->response($mdata,"json",'404');
     }
     if($data["id"]==null)
     {
-      $mdata["status"]=0;
+      $mdata["error"]=0;
       $mdata["message"]="id is null";
       $this->response($mdata,"json",'404');
     }
@@ -24,15 +24,15 @@ class FileAction extends Action
     $user = $M->where($condition)->find();
     if($user==null||$user==false)
     {
-      $mdata["status"]=0;
+      $mdata["error"]=0;
       $mdata["message"]="the user is not true";
       $this->response($mdata,"json",'404');
-    }
+    } 
     CRYPT_SHA256 == 1;
     $token_ture=crypt($user["token"],date("YmdHi"));
     if($data["token"]!=$token_ture)
     {
-      $mdata["status"]=0;
+      $mdata["error"]=0;
       $mdata["message"]="token wrong";
       $this->response($mdata,"json",'404'); 
     }
@@ -85,8 +85,8 @@ class FileAction extends Action
             $info = $upload->getUploadFileInfo();
         }
         
-        $data["status"] = 1;
-        $data["filename"] = $info[0]["savename"];
+        $data["error"] = 1;
+        $data["url"] = $info[0]["savename"];
         if($path=="photo")
         {
             $uploadfile=$upload->savePath.$data["filename"];
